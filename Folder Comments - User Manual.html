@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Folder Comments - User Manual</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        :root {
+            --primary: #1F497D;
+            --primary-light: #4A7CAD;
+            --primary-dark: #0F2942;
+            --accent: #FF6B35;
+            --bg-main: #FFFFFF;
+            --bg-secondary: #F8FAFC;
+            --bg-code: #1E293B;
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            --text-muted: #94A3B8;
+            --border: #E2E8F0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        [data-theme="dark"] {
+            --primary: #4A9EFF;
+            --primary-light: #6BB0FF;
+            --primary-dark: #3182CE;
+            --accent: #FF8A65;
+            --bg-main: #0F172A;
+            --bg-secondary: #1E293B;
+            --bg-code: #0D1117;
+            --text-primary: #F1F5F9;
+            --text-secondary: #CBD5E1;
+            --text-muted: #94A3B8;
+            --border: #334155;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-main);
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .header .subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header .version {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Navigation */
+        .nav {
+            position: sticky;
+            top: 0;
+            background: var(--bg-main);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            height: 60px;
+        }
+        
+        .nav-title {
+            font-weight: 600;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            overflow-x: auto;
+        }
+        
+        .nav-link {
+            padding: 0.5rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover {
+            background: var(--bg-secondary);
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 3rem;
+        }
+        
+        @media (max-width: 968px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+        
+        .toc {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .toc-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .toc-list {
+            list-style: none;
+        }
+        
+        .toc-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .toc-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            display: block;
+            padding: 0.25rem 0;
+            transition: color 0.2s;
+        }
+        
+        .toc-link:hover {
+            color: var(--primary);
+        }
+        
+        .toc-link.active {
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        /* Main Content */
+        .content {
+            max-width: 900px;
+        }
+        
+        .section {
+            margin-bottom: 4rem;
+            scroll-margin-top: 80px;
+        }
+        
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        h4 {
+            font-size: 1.125rem;
+            color: var(--text-primary);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Lists */
+        ul, ol {
+            margin-bottom: 1rem;
+            margin-left: 1.5rem;
+            color: var(--text-secondary);
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        li strong {
+            color: var(--text-primary);
+        }
+        
+        /* Info Boxes */
+        .info-box {
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .info-box.warning {
+            border-left-color: var(--accent);
+        }
+        
+        [data-theme="light"] .info-box.warning {
+            background: #FFF7ED;
+        }
+        
+        [data-theme="dark"] .info-box.warning {
+            background: rgba(255, 138, 101, 0.1);
+        }
+        
+        .info-box.tip {
+            border-left-color: #10B981;
+        }
+        
+        [data-theme="light"] .info-box.tip {
+            background: #ECFDF5;
+        }
+        
+        [data-theme="dark"] .info-box.tip {
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .info-box-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        /* Code Blocks */
+        code {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            background: var(--bg-code);
+            color: #E2E8F0;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+        
+        pre {
+            background: var(--bg-code);
+            color: #E2E8F0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: var(--bg-main);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: background-color 0.3s ease;
+        }
+        
+        thead {
+            background: var(--primary);
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            transition: border-color 0.3s ease;
+        }
+        
+        th {
+            font-weight: 600;
+        }
+        
+        tbody tr:hover {
+            background: var(--bg-secondary);
+        }
+        
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--primary-dark);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+        
+        .footer a {
+            color: white;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .footer a:hover {
+            border-bottom-color: white;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .section {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        /* Scroll to top button */
+        .scroll-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-xl);
+            transition: all 0.3s;
+            z-index: 99;
+        }
+        
+        .scroll-top:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+        
+        .scroll-top.visible {
+            display: flex;
+        }
+        
+        /* Theme toggle button */
+        .theme-toggle {
+            position: fixed;
+            bottom: 6rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-xl);
+            transition: all 0.3s;
+            z-index: 99;
+            font-size: 1.5rem;
+        }
+        
+        .theme-toggle:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px) rotate(20deg);
+        }
+        
+        .theme-toggle .icon-sun,
+        .theme-toggle .icon-moon {
+            position: absolute;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .theme-toggle .icon-sun {
+            opacity: 1;
+            transform: rotate(0deg);
+        }
+        
+        .theme-toggle .icon-moon {
+            opacity: 0;
+            transform: rotate(180deg);
+        }
+        
+        [data-theme="dark"] .theme-toggle .icon-sun {
+            opacity: 0;
+            transform: rotate(-180deg);
+        }
+        
+        [data-theme="dark"] .theme-toggle .icon-moon {
+            opacity: 1;
+            transform: rotate(0deg);
+        }
+        
+        /* Mobile menu toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        
+        @media (max-width: 968px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 1rem;
+                border-bottom: 1px solid var(--border);
+                box-shadow: var(--shadow-md);
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1>Folder Comments</h1>
+            <p class="subtitle">Shell Property Sheet Extension</p>
+            <span class="version">Version 1.0.0</span>
+        </div>
+    </header>
+    
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <span class="nav-title">User Manual</span>
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+            <div class="nav-links" id="navLinks">
+                <a href="#introduction" class="nav-link">Introduction</a>
+                <a href="#requirements" class="nav-link">Requirements</a>
+                <a href="#installation" class="nav-link">Installation</a>
+                <a href="#usage" class="nav-link">Using</a>
+                <a href="#technical" class="nav-link">Technical</a>
+                <a href="#troubleshooting" class="nav-link">Troubleshooting</a>
+                <a href="#faq" class="nav-link">FAQ</a>
+                <a href="#license" class="nav-link">License</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar TOC -->
+        <aside class="sidebar">
+            <div class="toc">
+                <h3 class="toc-title">Table of Contents</h3>
+                <ul class="toc-list">
+                    <li class="toc-item"><a href="#introduction" class="toc-link">1. Introduction</a></li>
+                    <li class="toc-item"><a href="#requirements" class="toc-link">2. System Requirements</a></li>
+                    <li class="toc-item"><a href="#installation" class="toc-link">3. Installation</a></li>
+                    <li class="toc-item"><a href="#usage" class="toc-link">4. Using Folder Comments</a></li>
+                    <li class="toc-item"><a href="#technical" class="toc-link">5. Technical Details</a></li>
+                    <li class="toc-item"><a href="#multilingual" class="toc-link">6. Multilingual Support</a></li>
+                    <li class="toc-item"><a href="#troubleshooting" class="toc-link">7. Troubleshooting</a></li>
+                    <li class="toc-item"><a href="#uninstall" class="toc-link">8. Uninstallation</a></li>
+                    <li class="toc-item"><a href="#faq" class="toc-link">9. FAQ</a></li>
+                    <li class="toc-item"><a href="#license" class="toc-link">10. License & Support</a></li>
+                </ul>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Introduction -->
+            <section id="introduction" class="section">
+                <h2>1. Introduction</h2>
+                <p>Welcome to Folder Comments, a powerful Windows Shell Extension that allows you to add descriptive comments to your folders. These comments appear as tooltips when you hover over folders in Windows Explorer and can be displayed as a column for easy viewing and organization.</p>
+                
+                <h3>1.1 What is Folder Comments?</h3>
+                <p>Folder Comments is a Shell Property Sheet Extension that integrates seamlessly with Windows Explorer. It adds a new 'Comments' tab to folder properties, allowing you to:</p>
+                <ul>
+                    <li>Add descriptive text to any folder on your computer</li>
+                    <li>View comments as tooltips when hovering over folders</li>
+                    <li>Display comments as a column in Windows Explorer for easy scanning</li>
+                    <li>Organize and document your file system without renaming folders</li>
+                </ul>
+                
+                <h3>1.2 Key Features</h3>
+                <ul>
+                    <li><strong>Native Windows Integration:</strong> Works directly within Windows Explorer</li>
+                    <li><strong>Multi-language Support:</strong> Available in 40+ languages</li>
+                    <li><strong>Single Folder Only:</strong> Tab only appears for individual folders (not multiple selections)</li>
+                    <li><strong>Instant Updates:</strong> Changes are reflected immediately in Explorer</li>
+                    <li><strong>Standard Storage:</strong> Uses Windows desktop.ini files (no proprietary database)</li>
+                </ul>
+            </section>
+            
+            <!-- System Requirements -->
+            <section id="requirements" class="section">
+                <h2>2. System Requirements</h2>
+                
+                <h3>2.1 Minimum Requirements</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Requirement</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Operating System</td>
+                            <td>Windows 7 SP1 or later</td>
+                        </tr>
+                        <tr>
+                            <td>Architecture</td>
+                            <td>32-bit (x86) or 64-bit (x64)</td>
+                        </tr>
+                        <tr>
+                            <td>Privileges</td>
+                            <td>Administrator (for installation only)</td>
+                        </tr>
+                        <tr>
+                            <td>Disk Space</td>
+                            <td>&lt; 5 MB</td>
+                        </tr>
+                        <tr>
+                            <td>File Systems</td>
+                            <td>NTFS, FAT32</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>2.2 Compatibility</h3>
+                <p>Folder Comments is compatible with:</p>
+                <ul>
+                    <li>Windows Explorer (all versions)</li>
+                    <li>NTFS and FAT32 file systems</li>
+                    <li>Local drives, network drives, and external storage</li>
+                </ul>
+            </section>
+            
+            <!-- Installation -->
+            <section id="installation" class="section">
+                <h2>3. Installation</h2>
+                
+                <h3>3.1 Running the Installer</h3>
+                <ol>
+                    <li>Download <code>FolderCommentsSetup_1.0.0.exe</code> from the official website</li>
+                    <li>Double-click the installer file</li>
+                    <li>Click 'Yes' when prompted by User Account Control (UAC)</li>
+                    <li>Read and accept the Freeware License Agreement</li>
+                    <li>Choose your installation folder (default: C:\Program Files\Numidiaware\Folder Comments)</li>
+                    <li>Click 'Install' to begin installation</li>
+                    <li>Click 'Finish' when installation completes</li>
+                </ol>
+                
+                <h3>3.2 Post-Installation</h3>
+                <p>After installation:</p>
+                <ul>
+                    <li>The correct version (32-bit or 64-bit) is automatically installed based on your Windows version</li>
+                    <li>The extension is automatically registered with Windows</li>
+                    <li>Explorer may need to restart (this happens automatically)</li>
+                    <li>A Start Menu folder is created with shortcuts to the website and license</li>
+                </ul>
+                
+                <div class="info-box tip">
+                    <div class="info-box-title">💡 Tip</div>
+                    <p>The installer automatically detects whether your system is 32-bit or 64-bit and installs the appropriate DLL file.</p>
+                </div>
+            </section>
+            
+            <!-- Usage -->
+            <section id="usage" class="section">
+                <h2>4. Using Folder Comments</h2>
+                
+                <h3>4.1 Adding a Comment to a Folder</h3>
+                <ol>
+                    <li>Right-click on any folder in Windows Explorer</li>
+                    <li>Select 'Properties' from the context menu</li>
+                    <li>Click on the 'Comments' tab (or localized name in your language)</li>
+                    <li>Type your comment in the text box</li>
+                    <li>Click 'OK' or 'Apply' to save</li>
+                </ol>
+                
+                <div class="info-box warning">
+                    <div class="info-box-title">⚠️ Important Notes</div>
+                    <ul>
+                        <li>The Comments tab only appears for single folder selections (not multiple folders)</li>
+                        <li>The tab only appears for folders, not individual files</li>
+                        <li>Multi-line input is supported, but will be converted to a single line for compatibility</li>
+                    </ul>
+                </div>
+                
+                <h3>4.2 Viewing Comments as Tooltips</h3>
+                <p>To see your comment as a tooltip:</p>
+                <ol>
+                    <li>Navigate to the parent folder containing your commented folder</li>
+                    <li>Hover your mouse over the folder icon</li>
+                    <li>After a brief moment, a tooltip will appear showing your comment</li>
+                </ol>
+                
+                <h3>4.3 Viewing Comments as a Column</h3>
+                <p>For a better overview of all folder comments:</p>
+                <ol>
+                    <li>Open Windows Explorer and navigate to any folder</li>
+                    <li>Right-click on any column header (e.g., 'Name', 'Date modified')</li>
+                    <li>Check the box next to 'Comments' (or localized name in your language)</li>
+                    <li>The Comments column will now appear, showing all folder comments in the current view</li>
+                </ol>
+                
+                <h3>4.4 Switching to Details View</h3>
+                <p>To see folder comments in a column format, you need to switch to Details view. The steps vary slightly depending on your Windows version:</p>
+                
+                <h4>Windows 11</h4>
+                <ol>
+                    <li>Open File Explorer and navigate to any folder</li>
+                    <li>Click the 'View' button in the toolbar</li>
+                    <li>Select 'Details' from the dropdown menu</li>
+                </ol>
+                <p><strong>Alternative:</strong> Right-click in an empty area of the folder window, select 'View', then 'Details'.</p>
+                
+                <h4>Windows 10</h4>
+                <ol>
+                    <li>Open File Explorer and navigate to any folder</li>
+                    <li>Click the 'View' tab in the ribbon</li>
+                    <li>Click 'Details' in the Layout section</li>
+                </ol>
+                
+                <h4>Windows 7</h4>
+                <ol>
+                    <li>Open Windows Explorer and navigate to any folder</li>
+                    <li>Click the 'Change your view' button in the toolbar</li>
+                    <li>Select 'Details' from the dropdown menu</li>
+                </ol>
+                
+                <h3>4.5 Applying Folder View Settings to All Folders</h3>
+                <p>Once you've configured the Comments column and Details view for one folder, you can apply these settings to all folders of the same type.</p>
+                
+                <h4>Windows 11 / Windows 10</h4>
+                <ol>
+                    <li>Configure a folder the way you want (Details view, Comments column visible, etc.)</li>
+                    <li>Click the 'View' tab in the ribbon (Win10) or three dots menu (Win11)</li>
+                    <li>Select 'Options' or 'Folder options'</li>
+                    <li>Click the 'View' tab in the dialog</li>
+                    <li>Click the 'Apply to Folders' button</li>
+                    <li>Click 'Yes' when prompted to confirm</li>
+                    <li>Click 'OK' to close the dialog</li>
+                </ol>
+                
+                <h4>Windows 7</h4>
+                <ol>
+                    <li>Configure a folder the way you want</li>
+                    <li>Click 'Organize' in the toolbar</li>
+                    <li>Select 'Folder and search options'</li>
+                    <li>Click the 'View' tab</li>
+                    <li>Click the 'Apply to Folders' button</li>
+                    <li>Click 'Yes' to confirm</li>
+                </ol>
+                
+                <div class="info-box">
+                    <div class="info-box-title">📋 Important Notes</div>
+                    <ul>
+                        <li><strong>Folder Type Matching:</strong> Windows applies view settings based on folder types (General Items, Documents, Pictures, Music, Videos)</li>
+                        <li><strong>Reset if Needed:</strong> Go to Folder Options > View tab and click 'Reset Folders' to restore defaults</li>
+                        <li><strong>Per-Folder Customization:</strong> You can still customize individual folders differently even after applying global settings</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <!-- Technical Details -->
+            <section id="technical" class="section">
+                <h2>5. Technical Details</h2>
+                
+                <h3>5.1 How It Works</h3>
+                <p>Folder Comments uses Windows' native desktop.ini system to store comments:</p>
+                <ul>
+                    <li>Creates a hidden desktop.ini file inside each commented folder</li>
+                    <li>Stores the comment as an 'InfoTip' property</li>
+                    <li>Sets proper file attributes (Hidden + System)</li>
+                    <li>Sets the folder's Read-Only attribute (required for desktop.ini to function)</li>
+                    <li>Notifies Windows Explorer to update immediately</li>
+                </ul>
+                
+                <h3>5.2 File Storage Location</h3>
+                <p>Comments are stored in: <code>[Folder Path]\desktop.ini</code></p>
+                <p>This is a standard Windows configuration file. You can view it by enabling 'Show hidden files' and disabling 'Hide protected operating system files' in Windows Explorer options.</p>
+                
+                <h3>5.3 DLL Files</h3>
+                <p>The extension uses the following DLL files based on your system architecture:</p>
+                <ul>
+                    <li><strong>64-bit Windows:</strong> <code>ShellPropSheetExt64.dll</code></li>
+                    <li><strong>32-bit Windows:</strong> <code>ShellPropSheetExt32.dll</code></li>
+                </ul>
+                <p>Both files are located in <code>%SystemRoot%\System32\</code></p>
+                
+                <h3>5.4 Registry Keys</h3>
+                <p>The extension registers itself in the following Windows Registry locations:</p>
+                <pre><code>HKEY_LOCAL_MACHINE\Software\Classes\Directory\shellex\PropertySheetHandlers\{GUID}
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved</code></pre>
+            </section>
+            
+            <!-- Multilingual Support -->
+            <section id="multilingual" class="section">
+                <h2>6. Multilingual Support</h2>
+                
+                <h3>6.1 Supported Languages</h3>
+                <p>Folder Comments automatically detects your Windows language and displays the interface accordingly. The following 40+ languages are supported:</p>
+                <ul>
+                    <li>Afrikaans, Albanian, Arabic, Basque, Belarusian</li>
+                    <li>Bulgarian, Catalan, Chinese (Simplified), Croatian, Czech</li>
+                    <li>Danish, Dutch, English, Estonian, Faeroese</li>
+                    <li>Farsi, Finnish, French, German, Greek</li>
+                    <li>Hebrew, Hungarian, Icelandic, Indonesian, Italian</li>
+                    <li>Japanese, Korean, Latvian, Lithuanian, Norwegian</li>
+                    <li>Polish, Portuguese, Romanian, Russian, Serbian</li>
+                    <li>Slovak, Slovenian, Spanish, Swedish, Thai</li>
+                    <li>Turkish, Ukrainian, Vietnamese</li>
+                </ul>
+                
+                <h3>6.2 RTL Language Support</h3>
+                <p>Right-to-left (RTL) languages are fully supported, including Arabic, Hebrew, and Farsi. The interface automatically adjusts for RTL layout, including text direction, control positioning, and reading order.</p>
+            </section>
+            
+            <!-- Troubleshooting -->
+            <section id="troubleshooting" class="section">
+                <h2>7. Troubleshooting</h2>
+                
+                <h3>7.1 Comments Tab Not Appearing</h3>
+                <p><strong>Problem:</strong> The Comments tab doesn't appear in folder properties.</p>
+                <p><strong>Possible Causes and Solutions:</strong></p>
+                <ul>
+                    <li><strong>Multiple folders selected:</strong> The tab only appears when you select a single folder</li>
+                    <li><strong>File selected instead of folder:</strong> The extension only works with folders, not files</li>
+                    <li><strong>Extension not registered:</strong> Re-run the installer or manually register (see Section 7.5)</li>
+                    <li><strong>Explorer needs restart:</strong> Restart Windows Explorer via Task Manager</li>
+                </ul>
+                
+                <h3>7.2 Comments Not Showing in Tooltips</h3>
+                <p><strong>Problem:</strong> Comment was saved but doesn't appear when hovering.</p>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Press F5 to refresh the Explorer window</li>
+                    <li>Navigate away from the folder and back again</li>
+                    <li>Restart Windows Explorer</li>
+                    <li>Check that the desktop.ini file was created</li>
+                </ul>
+                
+                <h3>7.3 Comments Column Not Available</h3>
+                <p><strong>Problem:</strong> The Comments column doesn't appear in the column header menu.</p>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li>Look for a localized name (e.g., 'Kommentare' in German)</li>
+                    <li>Click 'More...' at the bottom of the column menu</li>
+                    <li>Some folder types may not support all columns</li>
+                </ul>
+                
+                <h3>7.4 Installation Errors</h3>
+                <p><strong>Problem:</strong> Installation fails or shows error messages.</p>
+                <p><strong>Solutions:</strong></p>
+                <ul>
+                    <li><strong>Run as Administrator:</strong> Right-click the installer and select 'Run as administrator'</li>
+                    <li><strong>Antivirus Interference:</strong> Temporarily disable antivirus during installation</li>
+                    <li><strong>Locked Files:</strong> Close all Explorer windows and try again</li>
+                    <li><strong>Corrupted Download:</strong> Re-download the installer</li>
+                </ul>
+                
+                <h3>7.5 Manual Registration (Advanced)</h3>
+                <p>If the automatic registration fails, you can manually register the DLL using either Command Prompt or PowerShell.</p>
+                
+                <h4>Method 1: Using Command Prompt</h4>
+                <p><strong>For 64-bit Windows:</strong></p>
+                <pre><code>cd %SystemRoot%\System32
+regsvr32 ShellPropSheetExt64.dll</code></pre>
+                
+                <p><strong>For 32-bit Windows:</strong></p>
+                <pre><code>cd %SystemRoot%\System32
+regsvr32 ShellPropSheetExt32.dll</code></pre>
+                
+                <h4>Method 2: Using PowerShell</h4>
+                <p><strong>For 64-bit Windows:</strong></p>
+                <pre><code>regsvr32.exe "$env:SystemRoot\System32\ShellPropSheetExt64.dll"
+Stop-Process -Name explorer -Force; Start-Process explorer</code></pre>
+                
+                <p><strong>For 32-bit Windows:</strong></p>
+                <pre><code>regsvr32.exe "$env:SystemRoot\System32\ShellPropSheetExt32.dll"
+Stop-Process -Name explorer -Force; Start-Process explorer</code></pre>
+                
+                <h4>Verifying Registration</h4>
+                <p>To verify the extension is properly registered using PowerShell:</p>
+                <pre><code>Test-Path "HKLM:\Software\Classes\Directory\shellex\PropertySheetHandlers\{9E8F1A2B-3C4D-5E6F-7A8B-9C0D1E2F3A4B}"</code></pre>
+                <p>This command should return 'True' if registered correctly.</p>
+                
+                <h4>Manual Unregistration</h4>
+                <p><strong>Command Prompt:</strong></p>
+                <pre><code>regsvr32 /u ShellPropSheetExt64.dll</code></pre>
+                
+                <p><strong>PowerShell:</strong></p>
+                <pre><code>regsvr32.exe /u "$env:SystemRoot\System32\ShellPropSheetExt64.dll"</code></pre>
+            </section>
+            
+            <!-- Uninstallation -->
+            <section id="uninstall" class="section">
+                <h2>8. Uninstallation</h2>
+                
+                <h3>8.1 Standard Uninstallation</h3>
+                <ol>
+                    <li>Open Windows Settings</li>
+                    <li>Go to 'Apps' or 'Programs and Features'</li>
+                    <li>Find 'Folder Comments' in the list</li>
+                    <li>Click 'Uninstall'</li>
+                    <li>Follow the uninstallation wizard</li>
+                </ol>
+                
+                <p><strong>Alternative method:</strong> Go to Start Menu > Folder Comments > Uninstall Folder Comments</p>
+                
+                <h3>8.2 What Happens During Uninstallation</h3>
+                <ul>
+                    <li>The DLL files are removed from the Windows System folder</li>
+                    <li>Registry entries are cleaned up</li>
+                    <li>Start Menu shortcuts are removed</li>
+                    <li>Program files are deleted</li>
+                </ul>
+                
+                <h3>8.3 Preserving Your Comments</h3>
+                <div class="info-box tip">
+                    <div class="info-box-title">💡 Important</div>
+                    <p>Uninstalling Folder Comments does NOT delete your folder comments. Comments are stored in desktop.ini files within each folder, which remain intact after uninstallation. Your comments will still be visible as tooltips and in the Comments column.</p>
+                </div>
+            </section>
+            
+            <!-- FAQ -->
+            <section id="faq" class="section">
+                <h2>9. Frequently Asked Questions</h2>
+                
+                <h4>Q: Can I add comments to files, not just folders?</h4>
+                <p>A: No, this extension is specifically designed for folders. Windows Explorer already has a built-in 'Comments' field for files in the Details tab of file properties.</p>
+                
+                <h4>Q: Can I add comments to multiple folders at once?</h4>
+                <p>A: No, the Comments tab only appears when you select a single folder. This is by design to ensure clarity and prevent accidental bulk changes.</p>
+                
+                <h4>Q: Are there any character limits for comments?</h4>
+                <p>A: While there's no strict limit enforced by Folder Comments, Windows Explorer tooltips have practical display limits. Very long comments (over 500 characters) may be truncated in tooltips, though they're fully stored.</p>
+                
+                <h4>Q: Will my comments sync to cloud storage (OneDrive, Dropbox, etc.)?</h4>
+                <p>A: It depends on your cloud provider's settings. Most cloud services sync hidden files (like desktop.ini) by default, so your comments should sync. Some services may require you to enable syncing of hidden/system files.</p>
+                
+                <h4>Q: Do comments work on network drives?</h4>
+                <p>A: Yes, as long as you have write permissions to the network folder. The desktop.ini file will be created on the network share.</p>
+                
+                <h4>Q: Can other users see my folder comments?</h4>
+                <p>A: Yes, comments are stored in the folder itself (not in your user profile). Anyone with access to the folder can see the comments, whether they have Folder Comments installed or not.</p>
+                
+                <h4>Q: Does this slow down Windows Explorer?</h4>
+                <p>A: No, Folder Comments is a lightweight extension that only activates when you open folder properties. It has no impact on general Explorer performance.</p>
+                
+                <h4>Q: Is this software free?</h4>
+                <p>A: Yes, Folder Comments is free for personal and non-commercial use. If you want to use it in a commercial environment, please contact Numidiaware for commercial licensing options.</p>
+                
+                <h4>Q: Can I edit desktop.ini files manually?</h4>
+                <p>A: Yes, advanced users can edit desktop.ini files with any text editor. The InfoTip field contains the comment text. However, using the Folder Comments interface is recommended as it handles proper formatting and Windows notifications automatically.</p>
+            </section>
+            
+            <!-- License & Support -->
+            <section id="license" class="section">
+                <h2>10. License and Support</h2>
+                
+                <h3>10.1 License Information</h3>
+                <p>Folder Comments is distributed as freeware under the Numidiaware Freeware License Agreement. Key points:</p>
+                <ul>
+                    <li>Free to use for personal and non-commercial purposes only</li>
+                    <li>Commercial use requires a separate license (contact Numidiaware for details)</li>
+                    <li>No redistribution rights</li>
+                    <li>No reverse engineering or modification</li>
+                    <li>Provided 'as is' without warranty</li>
+                </ul>
+                
+                <h3>10.2 Getting Support</h3>
+                <p>If you need help with Folder Comments:</p>
+                <ul>
+                    <li>Visit our website: <a href="https://www.numidiaware.com/" target="_blank">https://www.numidiaware.com/</a></li>
+                    <li>Check the Troubleshooting section of this manual</li>
+                    <li>Review the FAQ section</li>
+                </ul>
+                
+                <h3>10.3 Credits</h3>
+                <p>Folder Comments is developed and maintained by Numidiaware, Inc.</p>
+                <p><strong>Development Tools:</strong></p>
+                <ul>
+                    <li>Delphi/Pascal programming language</li>
+                    <li>Inno Setup installer creation tool</li>
+                    <li>Windows Shell Extension API</li>
+                </ul>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Numidiaware, Inc. All rights reserved.</p>
+        <p>For more information, visit <a href="https://www.numidiaware.com/" target="_blank">www.numidiaware.com</a></p>
+    </footer>
+    
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+        <span class="icon-sun">☀️</span>
+        <span class="icon-moon">🌙</span>
+    </button>
+    
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" id="scrollTop" onclick="scrollToTop()">↑</button>
+    
+    <script>
+        // Theme toggle functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+        
+        // Load saved theme on page load
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } else {
+                // Check system preference
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+            }
+        }
+        
+        // Load theme immediately (before page renders)
+        loadTheme();
+        
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+            }
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    
+                    // Update active states
+                    document.querySelectorAll('.nav-link, .toc-link').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Close mobile menu if open
+                    document.getElementById('navLinks').classList.remove('active');
+                }
+            });
+        });
+        
+        // Scroll to top button visibility
+        window.addEventListener('scroll', () => {
+            const scrollTop = document.getElementById('scrollTop');
+            if (window.pageYOffset > 300) {
+                scrollTop.classList.add('visible');
+            } else {
+                scrollTop.classList.remove('visible');
+            }
+            
+            // Update active section in navigation
+            updateActiveSection();
+        });
+        
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        function toggleMobileMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+        
+        // Update active section based on scroll position
+        function updateActiveSection() {
+            const sections = document.querySelectorAll('.section');
+            const navLinks = document.querySelectorAll('.nav-link, .toc-link');
+            
+            let currentSection = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                const sectionBottom = sectionTop + section.offsetHeight;
+                
+                if (window.pageYOffset >= sectionTop && window.pageYOffset < sectionBottom) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + currentSection) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        // Initialize on page load
+        updateActiveSection();
+    </script>
+</body>
+</html>
